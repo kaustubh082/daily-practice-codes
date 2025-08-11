@@ -1,0 +1,28 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* next;
+};
+Node* CreateNode(int value) {
+    Node* newNode = new Node;
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+void InsertBegin(Node*& Head,int value){
+    Node* temp = CreateNode(value);
+    temp->next=Head;
+    Head=temp;
+   
+}
+
+int main() {
+    Node* mynode = CreateNode(50);
+    //Node* mynode3 = InsertBegin(50);
+    Node* mynode2 = CreateNode(40);
+    cout <<"Node: "<< mynode->data << endl;
+    cout <<"Node: "<< mynode2->data << endl;
+    return 0;
+}
