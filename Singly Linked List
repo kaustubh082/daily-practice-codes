@@ -1,0 +1,205 @@
+#include <iostream>
+
+using namespace std;
+
+struct Node {
+    int data;
+    Node* next;
+};
+
+Node* CreateNode(int value) {
+    Node* newnode = new Node;
+    newnode->data = value;
+    newnode->next = nullptr;
+    return newnode;
+}
+
+Node* insertatbegin(Node* Head, int value) {
+    Node* temp = CreateNode(value);
+    temp->next = Head;
+    Head = temp;
+    return Head;
+}
+
+Node* insertatend(Node* Head, int value) {
+    Node* temp;
+    if (Head == nullptr) {
+        temp = CreateNode(value);
+        Head = temp;
+        return Head;
+    }
+    temp = Head;
+    while (temp->next != nullptr) {
+        temp = temp->next;
+    }
+    temp->next = CreateNode(value);
+    return Head;
+}
+
+Node* insertatpos(Node* Head, int value, int pos) {
+    if (pos < 1) {
+        cout << "Invalid position. Position should be 1 or greater." << endl;
+        return Head;
+    }
+    if (pos == 1) {
+        return insertatbegin(Head, value);
+    }
+
+    Node* newnode = CreateNode(value);
+    Node* temp = Head;
+    for (int i = 1; i < pos - 1 && temp != nullptr; ++i) {
+        temp = temp->next;
+    }
+
+    if (temp == nullptr) {
+        cout << "Position out of bounds. Node not inserted." << endl;
+        delete newnode;
+        return Head;
+    }
+
+    newnode->next = temp->next;
+    temp->next = newnode;
+    return Head;
+}
+
+Node* deleteatbegin(Node* Head) {
+    if (Head == nullptr) {
+        cout << "List is empty. Cannot delete from beginning." << endl;
+        return nullptr;
+    }
+    Node* temp = Head;
+    Head = Head->next;
+    delete temp;
+    return Head;
+}
+
+Node* deleteatend(Node* Head) {
+    if (Head == nullptr) {
+        cout << "List is empty. Cannot delete from end." << endl;
+        return nullptr;
+    }
+    if (Head->next == nullptr) {
+        delete Head;
+        return nullptr;
+    }
+    Node* temp = Head;
+    while (temp->next->next != nullptr) {
+        temp = temp->next;
+    }
+    delete temp->next;
+    temp->next = nullptr;
+    return Head;
+}
+
+Node* deleteatpos(Node* Head, int pos) {
+    if (Head == nullptr) {
+        cout << "List is empty. Cannot delete at position." << endl;
+        return nullptr;
+    }
+    if (pos < 1) {
+        cout << "Invalid position. Position should be 1 or greater." << endl;
+        return Head;
+    }
+    if (pos == 1) {
+        return deleteatbegin(Head);
+    }
+
+    Node* temp = Head;
+    Node* prev = nullptr;
+    for (int i = 1; i < pos && temp != nullptr; ++i) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == nullptr) {
+        cout << "Position out of bounds. Node not deleted." << endl;
+        return Head;
+    }
+
+    prev->next = temp->next;
+    delete temp;
+    return Head;
+}
+
+Node* display(Node* Head) {
+    Node* temp = Head;
+    if (Head == nullptr) {
+        cout << "List is empty." << endl;
+        return Head;
+    }
+    cout << "Linked List: ";
+    while (temp != nullptr) {
+        cout << temp->data << " -> ";
+        temp = temp->next;
+    }
+    cout << "NULL" << endl;
+    return Head;
+}
+
+int main() {
+    int ch, value, pos;
+    Node* Head = nullptr;
+
+    do {
+        cout << "\n--- Linked List Operations ---" << endl;
+        cout << "1. Insert at Begin" << endl;
+        cout << "2. Insert at End" << endl;
+        cout << "3. Insert at Position" << endl;
+        cout << "4. Delete at Begin" << endl;
+        cout << "5. Delete at End" << endl;
+        cout << "6. Delete at Position" << endl;
+        cout << "7. Display" << endl;
+        cout << "8. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> ch;
+
+        switch (ch) {
+            case 1:
+                cout << "Enter value to insert at beginning: ";
+                cin >> value;
+                Head = insertatbegin(Head, value);
+                break;
+            case 2:
+                cout << "Enter value to insert at end: ";
+                cin >> value;
+                Head = insertatend(Head, value);
+                break;
+            case 3:
+                cout << "Enter value to insert: ";
+                cin >> value;
+                cout << "Enter position to insert at: ";
+                cin >> pos;
+                Head = insertatpos(Head, value, pos);
+                break;
+            case 4:
+                Head = deleteatbegin(Head);
+                break;
+            case 5:
+                Head = deleteatend(Head);
+                break;
+            case 6:
+                cout << "Enter position to delete: ";
+                cin >> pos;
+                Head = deleteatpos(Head, pos);
+                break;
+            case 7:
+                display(Head);
+                break;
+            case 8:
+                cout << "Exiting program." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+        }
+    } while (ch != 8);
+
+    Node* current = Head;
+    while (current != nullptr) {
+        Node* next = current->next;
+        delete current;
+        current = next;
+    }
+    Head = nullptr;
+
+    return 0;
+}
