@@ -1,0 +1,129 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Student {
+    int id;
+    string name;
+    int age;
+    string course;
+    Student* next;
+};
+
+class HashTable {
+    int size;
+    Student** table;
+
+public:
+    HashTable(int s) {
+        size = s;
+        table = new Student*[size];
+        for (int i = 0; i < size; i++)
+            table[i] = nullptr;
+    }
+
+    int hashFunction(int id) {
+        return id % size;
+    }
+
+    void addStudent(int id, string name, int age, string course) {
+        int index = hashFunction(id);
+        Student* newStudent = new Student{id, name, age, course, nullptr};
+
+        if (table[index] == nullptr) {
+            table[index] = newStudent;
+        } else {
+            Student* temp = table[index];
+            while (temp->next != nullptr)
+                temp = temp->next;
+            temp->next = newStudent;
+        }
+    }
+
+    void getStudent(int id) {
+        int index = hashFunction(id);
+        Student* temp = table[index];
+
+        while (temp != nullptr) {
+            if (temp->id == id) {
+                cout << "\n--- Student Details ---\n";
+                cout << "ID: " << temp->id
+                     << "\nName: " << temp->name
+                     << "\nAge: " << temp->age
+                     << "\nCourse: " << temp->course << "\n";
+                return;
+            }
+            temp = temp->next;
+        }
+        cout << "Student not found.\n";
+    }
+
+    void displayAllStudents() {
+        cout << "\n--- All Student Records ---\n";
+        bool found = false;
+
+        for (int i = 0; i < size; i++) {
+            Student* temp = table[i];
+            if (temp != nullptr) {
+                cout << "\n[Bucket " << i << "]\n";
+            }
+            while (temp != nullptr) {
+                cout << "ID: " << temp->id
+                     << " | Name: " << temp->name
+                     << " | Age: " << temp->age
+                     << " | Course: " << temp->course << "\n";
+                temp = temp->next;
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "No student records found.\n";
+        }
+    }
+};
+
+int main() {
+    HashTable ht(10);
+    int choice;
+
+    while (true) {
+        cout << "\n1. Add Student\n2. Retrieve Student\n3. Exit\n4. Display All Students\nEnter choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            int id, age;
+            string name, course;
+            cout << "Enter ID: ";
+            cin >> id;
+            cin.ignore();
+            cout << "Enter Name: ";
+            getline(cin, name);
+            cout << "Enter Age: ";
+            cin >> age;
+            cin.ignore();
+            cout << "Enter Course: ";
+            getline(cin, course);
+
+            ht.addStudent(id, name, age, course);
+        } 
+        else if (choice == 2) {
+            int id;
+            cout << "Enter Student ID: ";
+            cin >> id;
+            ht.getStudent(id);
+        } 
+        else if (choice == 3) {
+            cout << "Exiting program.\n";
+            break;
+        } 
+        else if (choice == 4) {
+            ht.displayAllStudents();
+        } 
+        else {
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+
+    return 0;
+}
