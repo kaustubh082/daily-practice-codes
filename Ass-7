@@ -1,0 +1,143 @@
+#include <iostream>
+using namespace std;
+
+const int MAX = 100;
+
+
+class ServiceRequest {
+public:
+    int requestId;
+    string customerName;
+    string serviceType;
+    bool completed;
+
+    ServiceRequest() {
+        requestId = 0;
+        customerName = "";
+        serviceType = "";
+        completed = false;
+    }
+
+    ServiceRequest(int id, string name, string type) {
+        requestId = id;
+        customerName = name;
+        serviceType = type;
+        completed = false;
+    }
+
+    void showInfo() {
+        cout << "Request ID: " << requestId
+             << " | Customer: " << customerName
+             << " | Service: " << serviceType
+             << " | Status: " << (completed ? "Completed" : "Pending") << endl;
+    }
+};
+
+
+class RequestQueue {
+private:
+    ServiceRequest arr[MAX];
+    int front;
+    int rear;
+    int total;
+public:
+    RequestQueue() {
+        front = 0;
+        rear = -1;
+        total = 0;
+    }
+
+    bool isEmpty() {
+        return total == 0;
+    }
+
+    bool isFull() {
+        return total == MAX;
+    }
+
+    void addRequest(ServiceRequest req) {
+        if (isFull()) {
+            cout << "Queue is full. Cannot add new request." << endl;
+            return;
+        }
+        rear = (rear + 1) % MAX;
+        arr[rear] = req;
+        total++;
+        cout << "Request added successfully!" << endl;
+    }
+
+    ServiceRequest processRequest() {
+        if (isEmpty()) {
+            cout << "No requests to process." << endl;
+            return ServiceRequest();
+        }
+        ServiceRequest req = arr[front];
+        front = (front + 1) % MAX;
+        total--;
+        return req;
+    }
+
+    void displayAll() {
+        if (isEmpty()) {
+            cout << "No requests in the queue." << endl;
+            return;
+        }
+        cout << "\n--- Current Service Requests ---" << endl;
+        for (int i = 0; i < total; i++) {
+            int pos = (front + i) % MAX;
+            arr[pos].showInfo();
+        }
+    }
+};
+
+int main() {
+    RequestQueue queue;
+
+  
+    queue.addRequest(ServiceRequest(101, "John Doe", "Technical Support"));
+    queue.addRequest(ServiceRequest(102, "Jane Smith", "Billing Inquiry"));
+    queue.addRequest(ServiceRequest(103, "David Brown", "Product Information"));
+
+    int choice;
+    do {
+        cout << "\n1. Add New Request\n2. Process Next Request\n3. View All Requests\n4. Exit\nEnter choice: ";
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == 1) {
+            int id;
+            string name, type;
+            cout << "Enter Request ID: ";
+            cin >> id;
+            cin.ignore();
+            cout << "Enter Customer Name: ";
+            getline(cin, name);
+            cout << "Enter Service Type: ";
+            getline(cin, type);
+
+            queue.addRequest(ServiceRequest(id, name, type));
+        }
+        else if (choice == 2) {
+            if (queue.isEmpty()) {
+                cout << "No pending requests to process." << endl;
+            } else {
+                ServiceRequest req = queue.processRequest();
+                req.completed = true;
+                cout << "\nProcessing the following request..." << endl;
+                req.showInfo();
+                cout << "Request processed successfully!" << endl;
+            }
+        }
+        else if (choice == 3) {
+            queue.displayAll();
+        }
+        else if (choice == 4) {
+            cout << "Exiting program." << endl;
+        }
+        else {
+            cout << "Invalid option! " << endl;
+        }
+    } while (choice != 4);
+
+    return 0;
+}
