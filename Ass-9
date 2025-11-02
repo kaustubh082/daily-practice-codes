@@ -1,0 +1,263 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int value;
+    int freq;
+    Node *leftChild, *rightChild;
+};
+
+class BinaryTree {
+    Node* rootNode;
+
+    Node* makeNode(int val) {
+        Node* freshNode = new Node;
+        freshNode->value = val;
+        freshNode->freq = 1;
+        freshNode->leftChild = freshNode->rightChild = NULL;
+        return freshNode;
+    }
+
+    Node* insertNode(Node* node, int val) {
+        if (node == NULL)
+            return makeNode(val);
+        if (val == node->value)
+            node->freq++;
+        else if (val < node->value)
+            node->leftChild = insertNode(node->leftChild, val);
+        else
+            node->rightChild = insertNode(node->rightChild, val);
+        return node;
+    }
+
+    Node* findMin(Node* node) {
+        while (node && node->leftChild != NULL)
+            node = node->leftChild;
+        return node;
+    }
+
+    Node* removeNode(Node* node, int val) {
+        if (node == NULL) return node;
+        if (val < node->value)
+            node->leftChild = removeNode(node->leftChild, val);
+        else if (val > node->value)
+            node->rightChild = removeNode(node->rightChild, val);
+        else {
+            if (node->freq > 1)
+                node->freq--;
+            else {
+                if (node->leftChild == NULL) {
+                    Node* temp = node->rightChild;
+                    delete node;
+                    return temp;
+                } else if (node->rightChild == NULL) {
+                    Node* temp = node->leftChild;
+                    delete node;
+                    return temp;
+                }
+                Node* temp = findMin(node->rightChild);
+                node->value = temp->value;
+                node->freq = temp->freq;
+                temp->freq = 1;
+                node->rightChild = removeNode(node->rightChild, temp->value);
+            }
+        }
+        return node;
+    }
+
+    Node* searchNode(Node* node, int val) {
+        if (node == NULL || node->value == val)
+            return node;
+        if (val < node->value)
+            return searchNode(node->leftChild, val);
+        return searchNode(node->rightChild, val);
+    }
+
+    void inorderDisplay(Node* node) {
+        if (node != NULL) {
+            inorderDisplay(node->leftChild);
+            cout << node->value << "[" << node->freq << "] ";
+            inorderDisplay(node->rightChild);
+        }
+    }
+
+    void preorderDisplay(Node* node) {
+        if (node != NULL) {
+            cout << node->value << "[" << node->freq << "] ";
+            preorderDisplay(node->leftChild);
+            preorderDisplay(node->rightChild);
+        }
+    }
+
+    void postorderDisplay(Node* node) {
+        if (node != NULL) {
+            postorderDisplay(node->leftChild);
+            postorderDisplay(node->rightChild);
+            cout << node->value << "[" << node->freq << "] ";
+        }
+    }
+
+    int findDepth(Node* node) {
+        if (node == NULL) return 0;
+        int leftH = findDepth(node->leftChild);
+        int rightH = findDepth(node->rightChild);
+        return (leftH > rightH ? leftH : rightH) + 1;
+    }
+
+    Node* makeMirror(Node* node) {
+        if (node == NULL) return node;
+        Node* temp = node->leftChild;
+        node->leftChild = makeMirror(node->rightChild);
+        node->rightChild = makeMirror(temp);
+        return node;
+    }
+
+    Node* clone(Node* node) {
+        if (node == NULL) return NULL;
+        Node* copyNode = makeNode(node->value);
+        copyNode->freq = node->freq;
+        copyNode->leftChild = clone(node->leftChild);
+        copyNode->rightChild = clone(node->rightChild);
+        return copyNode;
+    }
+
+    void showParentChild(Node* node) {
+        if (node == NULL) return;
+        if (node->leftChild != NULL || node->rightChild != NULL) {
+            cout << "Parent Node: " << node->value << " -> ";
+            if (node->leftChild) cout << "Left Child: " << node->leftChild->value << " ";
+            if (node->rightChild) cout << "Right Child: " << node->rightChild->value;
+            cout << endl;
+        }
+        showParentChild(node->leftChild);
+        showParentChild(node->rightChild);
+    }
+
+    void showLeaf(Node* node) {
+        if (node == NULL) return;
+        if (node->leftChild == NULL && node->rightChild == NULL)
+            cout << node->value << " ";
+        showLeaf(node->leftChild);
+        showLeaf(node->rightChild);
+    }
+
+    void printLevel(Node* node, int level) {
+        if (node == NULL) return;
+        if (level == 1)
+            cout << node->value << "[" << node->freq << "] ";
+        else {
+            printLevel(node->leftChild, level - 1);
+            printLevel(node->rightChild, level - 1);
+        }
+    }
+
+public:
+    BinaryTree() { rootNode = NULL; }
+
+    void addValue(int val) { rootNode = insertNode(rootNode, val); }
+    void deleteValue(int val) { rootNode = removeNode(rootNode, val); }
+
+    void searchValue(int val) {
+        Node* res = searchNode(rootNode, val);
+        if (res)
+            cout << "Value " << val << " exists with frequency = " << res->freq << endl;
+        else
+            cout << "Value " << val << " not found in tree.\n";
+    }
+
+    void showAllTraversals() {
+        cout << "\nInorder Traversal: "; inorderDisplay(rootNode);
+        cout << "\nPreorder Traversal: "; preorderDisplay(rootNode);
+        cout << "\nPostorder Traversal: "; postorderDisplay(rootNode);
+        cout << endl;
+    }
+
+    void showTreeDepth() { cout << "Height of tree = " << findDepth(rootNode) << endl; }
+
+    void makeTreeMirror() {
+        makeMirror(rootNode);
+        cout << "Tree successfully mirrored.\n";
+    }
+
+    void duplicateTree() {
+        Node* newTree = clone(rootNode);
+        cout << "Copied Tree (Inorder View): ";
+        inorderDisplay(newTree);
+        cout << endl;
+    }
+
+    void listParentChild() { showParentChild(rootNode); }
+
+    void listLeaves() {
+        cout << "All Leaf Nodes: ";
+        showLeaf(rootNode);
+        cout << endl;
+    }
+
+    void showLevelOrder() {
+        int h = findDepth(rootNode);
+        for (int i = 1; i <= h; i++) {
+            cout << "Level " << i << ": ";
+            printLevel(rootNode, i);
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    BinaryTree bt;
+    int option, num;
+    do {
+        cout << "\n==== Binary Tree Operations Menu ====\n";
+        cout << "1. Insert Element\n2. Delete Element\n3. Search Element\n4. Show Traversals\n";
+        cout << "5. Show Tree Depth\n6. Mirror the Tree\n7. Copy the Tree\n";
+        cout << "8. Display Parent-Child Nodes\n9. Display Leaf Nodes\n10. Display Level-Wise View\n0. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> option;
+
+        switch (option) {
+            case 1:
+                cout << "Enter number to insert: ";
+                cin >> num;
+                bt.addValue(num);
+                break;
+            case 2:
+                cout << "Enter number to remove: ";
+                cin >> num;
+                bt.deleteValue(num);
+                break;
+            case 3:
+                cout << "Enter number to search: ";
+                cin >> num;
+                bt.searchValue(num);
+                break;
+            case 4:
+                bt.showAllTraversals();
+                break;
+            case 5:
+                bt.showTreeDepth();
+                break;
+            case 6:
+                bt.makeTreeMirror();
+                break;
+            case 7:
+                bt.duplicateTree();
+                break;
+            case 8:
+                bt.listParentChild();
+                break;
+            case 9:
+                bt.listLeaves();
+                break;
+            case 10:
+                bt.showLevelOrder();
+                break;
+            case 0:
+                cout << "Thank you! Program Ended.\n";
+                break;
+            default:
+                cout << "Invalid input! Try again.\n";
+        }
+    } while (option != 0);
+    return 0;
+}
