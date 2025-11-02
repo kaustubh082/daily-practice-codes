@@ -1,0 +1,140 @@
+#include <iostream>
+using namespace std;
+
+class Stack {
+    char arr[20];
+    int top;
+
+public:
+    Stack() {
+        top = -1;
+    }
+
+    void push(char a) {
+        if (!isFull()) {
+            arr[++top] = a;
+        } else {
+            cout << "Stack is Full" << endl;
+        }
+    }
+
+    char pop() {
+        if (isEmpty()) {
+            cout << "Stack is Empty" << endl;
+            return -1;
+        } else {
+            return arr[top--];
+        }
+    }
+
+    bool isEmpty() {
+        return top == -1;
+    }
+
+    bool isFull() {
+        return top == (20 - 1);
+    }
+
+    char peak() {
+        if (isEmpty()) {
+            return -1;
+        }
+        return arr[top];
+    }
+};
+
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
+    return 0;
+}
+
+string reverseString(string str) {
+    int n = str.length();
+    for (int i = 0; i < n / 2; i++) {
+        char temp = str[i];
+        str[i] = str[n - i - 1];
+        str[n - i - 1] = temp;
+    }
+    return str;
+}
+
+void infixToPostfix(string expression) {
+    Stack s;
+    string postfix = "";
+
+    for (int i = 0; i < expression.length(); i++) {
+        char ch = expression[i];
+
+        if (isalnum(ch)) {
+            postfix += ch;
+        } else if (ch == '(') {
+            s.push(ch);
+        } else if (ch == ')') {
+            while (!s.isEmpty() && s.peak() != '(') {
+                postfix += s.pop();
+            }
+            s.pop();
+        } else {
+            while (!s.isEmpty() && precedence(ch) <= precedence(s.peak())) {
+                postfix += s.pop();
+            }
+            s.push(ch);
+        }
+    }
+
+    while (!s.isEmpty()) {
+        postfix += s.pop();
+    }
+
+    cout << "Postfix Expression: " << postfix << endl;
+}
+
+void infixToPrefix(string expression) {
+    Stack s;
+    string prefix = "";
+
+    expression = reverseString(expression);
+
+    for (int i = 0; i < expression.length(); i++) {
+        if (expression[i] == '(') expression[i] = ')';
+        else if (expression[i] == ')') expression[i] = '(';
+    }
+
+    for (int i = 0; i < expression.length(); i++) {
+        char ch = expression[i];
+
+        if (isalnum(ch)) {
+            prefix += ch;
+        } else if (ch == '(') {
+            s.push(ch);
+        } else if (ch == ')') {
+            while (!s.isEmpty() && s.peak() != '(') {
+                prefix += s.pop();
+            }
+            s.pop();
+        } else {
+            while (!s.isEmpty() && precedence(ch) < precedence(s.peak())) {
+                prefix += s.pop();
+            }
+            s.push(ch);
+        }
+    }
+
+    while (!s.isEmpty()) {
+        prefix += s.pop();
+    }
+
+    prefix = reverseString(prefix);
+
+    cout << "Prefix Expression: " << prefix << endl;
+}
+
+int main() {
+    string exp = "a+b*(c*d)";
+    cout << "Infix Expression: " << exp << endl;
+    infixToPostfix(exp);
+    infixToPrefix(exp);
+    return 0;
+}
