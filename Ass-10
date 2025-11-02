@@ -1,0 +1,245 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Contact {
+    int id;
+    string name;
+    string phone;
+    string email;
+};
+
+struct Node {
+    Contact data;
+    Node* left;
+    Node* right;
+    int height;
+};
+
+class AVLTree {
+    Node* root;
+
+    int height(Node* n) {
+        return n ? n->height : 0;
+    }
+
+    int getBalance(Node* n) {
+        if (!n) return 0;
+        return height(n->left) - height(n->right);
+    }
+
+    Node* newNode(Contact c) {
+        Node* node = new Node;
+        node->data = c;
+        node->left = node->right = nullptr;
+        node->height = 1;
+        return node;
+    }
+
+    Node* rightRotate(Node* y) {
+        Node* x = y->left;
+        Node* t = x->right;
+        x->right = y;
+        y->left = t;
+        y->height = max(height(y->left), height(y->right)) + 1;
+        x->height = max(height(x->left), height(x->right)) + 1;
+        return x;
+    }
+
+    Node* leftRotate(Node* x) {
+        Node* y = x->right;
+        Node* t = y->left;
+        y->left = x;
+        x->right = t;
+        x->height = max(height(x->left), height(x->right)) + 1;
+        y->height = max(height(y->left), height(y->right)) + 1;
+        return y;
+    }
+
+    Node* insert(Node* node, Contact c) {
+        if (!node) return newNode(c);
+        if (c.name < node->data.name)
+            node->left = insert(node->left, c);
+        else if (c.name > node->data.name)
+            node->right = insert(node->right, c);
+        else
+            return node;
+
+        node->height = 1 + max(height(node->left), height(node->right));
+        int balance = getBalance(node);
+
+        // Left Left Case
+        if (balance > 1 && c.name < node->left->data.name)
+            return rightRotate(node);
+        // Right Right Case
+        if (balance < -1 && c.name > node->right->data.name)
+            return leftRotate(node);
+        // Left Right Case
+        if (balance > 1 && c.name > node->left->data.name) {
+            node->left = leftRotate(node->left);
+            return rightRotate(node);
+        }
+        // Right Left Case
+        if (balance < -1 && c.name < node->right->data.name) {
+            node->right = rightRotate(node->right);
+            return leftRotate(node);
+        }
+        return node;
+    }
+
+    void inorder(Node* root) {
+        if (!root) return;
+        inorder(root->left);
+        cout << "ID: " << root->data.id
+             << " | Name: " << root->data.name
+             << " | Phone: " << root->data.phone
+             << " | Email: " << root->data.email << endl;
+        inorder(root->right);
+    }
+
+    Node* searchByName(Node* root, string name) {
+        if (!root || root->data.name == name)
+            return root;
+        if (name < root->data.name)
+            return searchByName(root->left, name);
+        return searchByName(root->right, name);
+    }
+
+    void searchByPhone(Node* root, string phone, bool &found) {
+        if (!root) return;
+        if (root->data.phone == phone) {
+            cout << "Found: " << root->data.name << " | " << root->data.phone << endl;
+            found = true;
+        }
+        searchByPhone(root->left, phone, found);
+        searchByPhone(root->right, phone, found);
+    }
+
+    void searchByEmail(Node* root, string email, bool &found) {
+        if (!root) return;
+        if (root->data.email == email) {
+            cout << "Found: " << root->data.name << " | " << root->data.email << endl;
+            found = true;
+        }
+        searchByEmail(root->left, email, found);
+        searchByEmail(root->right, email, found);
+    }
+
+public:
+    AVLTree() { root = nullptr; }
+
+    void addContact(Contact c) {
+        root = insert(root, c);
+        cout << "Contact added successfully!\n";
+    }
+
+    void displayContacts() {
+        cout << "\n--- Contact List ---\n";
+        inorder(root);
+    }
+
+    void searchName(string name) {
+        Node* res = searchByName(root, name);
+        if (res)
+            cout << "Found: " << res->data.name << " | " << res->data.phone << " | " << res->data.email << endl;
+        else
+            cout << "Contact not found!\n";
+    }
+
+    void searchPhone(string phone) {
+        bool found = false;
+        searchByPhone(root, phone, found);
+        if (!found) cout << "Contact not found!\n";
+    }
+
+    void searchEmail(string email) {
+        bool found = false;
+        searchByEmail(root, email, found);
+        if (!found) cout << "Contact not found!\n";
+    }
+
+    void updateContact(string name) {
+        Node* node = searchByName(root, name);
+        if (!node) {
+            cout << "Contact not found!\n";
+            return;
+        }
+        int ch;
+        cout << "\n1. Update Phone\n2. Update Email\nEnter choice: ";
+        cin >> ch;
+        if (ch == 1) {
+            cout << "Enter new phone: ";
+            cin >> node->data.phone;
+        } else if (ch == 2) {
+            cout << "Enter new email: ";
+            cin >> node->data.email;
+        } else {
+            cout << "Invalid choice!\n";
+            return;
+        }
+        cout << "Contact updated successfully!\n";
+    }
+};
+
+int main() {
+    AVLTree contacts;
+    contacts.addContact({101, "Rahul Sharma", "9876543210", "rahul@example.com"});
+    contacts.addContact({102, "Priya Patel", "1234567890", "priya@example.com"});
+    contacts.addContact({103, "Aarav Gupta", "8765432109", "aarav@example.com"});
+
+    int choice;
+    do {
+        cout << "\n===== Contact Management System =====";
+        cout << "\n1. Display All Contacts";
+        cout << "\n2. Add New Contact";
+        cout << "\n3. Search by Name";
+        cout << "\n4. Search by Phone";
+        cout << "\n5. Search by Email";
+        cout << "\n6. Update Contact";
+        cout << "\n0. Exit";
+        cout << "\nEnter choice: ";
+        cin >> choice;
+        cin.ignore();
+
+        if (choice == 1)
+            contacts.displayContacts();
+        else if (choice == 2) {
+            Contact c;
+            cout << "Enter Contact ID: "; cin >> c.id; cin.ignore();
+            cout << "Enter Name: "; getline(cin, c.name);
+            cout << "Enter Phone: "; cin >> c.phone;
+            cout << "Enter Email: "; cin >> c.email;
+            contacts.addContact(c);
+        }
+        else if (choice == 3) {
+            string name;
+            cout << "Enter Name: ";
+            getline(cin, name);
+            contacts.searchName(name);
+        }
+        else if (choice == 4) {
+            string phone;
+            cout << "Enter Phone: ";
+            cin >> phone;
+            contacts.searchPhone(phone);
+        }
+        else if (choice == 5) {
+            string email;
+            cout << "Enter Email: ";
+            cin >> email;
+            contacts.searchEmail(email);
+        }
+        else if (choice == 6) {
+            string name;
+            cout << "Enter Name to Update: ";
+            getline(cin, name);
+            contacts.updateContact(name);
+        }
+        else if (choice == 0)
+            cout << "Exiting Program...\n";
+        else
+            cout << "Invalid choice!\n";
+    } while (choice != 0);
+
+    return 0;
+}
