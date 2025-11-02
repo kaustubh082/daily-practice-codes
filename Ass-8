@@ -1,0 +1,143 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+const int SIZE = 5;
+
+struct Order {
+    int OrderID;
+    string Items;
+    string CustomerName;
+    string Status;  // "Pending", "Processing", "Completed"
+};
+
+class CircularQueue {
+private:
+    Order queue[SIZE];
+    int front;
+    int rear;
+
+public:
+    CircularQueue() {
+        front = -1;
+        rear = -1;
+    }
+
+    bool isFull() {
+        return (front == 0 && rear == SIZE - 1) || ((rear + 1) % SIZE == front);
+    }
+
+    bool isEmpty() {
+        return (front == -1);
+    }
+
+    // Add new order
+    void enqueue(Order order) {
+        if (isFull()) {
+            cout << "Drive-Thru Lane Full – Cannot accept new orders.\n";
+            return;
+        }
+
+        if (front == -1) {
+            front = 0;
+        }
+        rear = (rear + 1) % SIZE;
+        queue[rear] = order;
+        queue[rear].Status = "Pending";
+        cout << "Order " << order.OrderID << " added successfully for " << order.CustomerName << ".\n";
+    }
+
+    // Process the next order in round-robin fashion
+    void processOrder() {
+        if (isEmpty()) {
+            cout << "No orders to process.\n";
+            return;
+        }
+
+        cout << "Processing Order ID: " << queue[front].OrderID
+             << " for " << queue[front].CustomerName << "...\n";
+        queue[front].Status = "Processing";
+
+        // Simulate completing the order
+        cout << " Order " << queue[front].OrderID << " Completed!\n";
+        queue[front].Status = "Completed";
+
+        // Dequeue after processing
+        if (front == rear) {
+            front = -1;
+            rear = -1;
+        } else {
+            front = (front + 1) % SIZE;
+        }
+    }
+
+    // Display current orders in the queue
+    void display() {
+        if (isEmpty()) {
+            cout << "Drive-Thru lane is empty – no active orders.\n";
+            return;
+        }
+
+        cout << "\n Current Orders in Drive-Thru:\n";
+        int i = front;
+        while (true) {
+            cout << "Order ID: " << queue[i].OrderID
+                 << " | Customer: " << queue[i].CustomerName
+                 << " | Items: " << queue[i].Items
+                 << " | Status: " << queue[i].Status << endl;
+
+            if (i == rear) break;
+            i = (i + 1) % SIZE;
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    CircularQueue driveThru;
+
+    // Initialize with given orders
+    driveThru.enqueue({101, "Burger, Fries, Drink", "Rahul Sharma", "Pending"});
+    driveThru.enqueue({102, "Chicken Sandwich, Salad, Drink", "Priya Patel", "Pending"});
+    driveThru.enqueue({103, "Pizza, Wings, Drink", "Aarav Gupta", "Pending"});
+
+    int choice;
+    while (true) {
+        cout << "\n Fast-Food Drive-Thru Management\n";
+        cout << "1. Add New Order\n";
+        cout << "2. Process Next Order\n";
+        cout << "3. View Orders\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            Order newOrder;
+            cout << "Enter Order ID: ";
+            cin >> newOrder.OrderID;
+            cin.ignore();
+            cout << "Enter Customer Name: ";
+            getline(cin, newOrder.CustomerName);
+            cout << "Enter Items: ";
+            getline(cin, newOrder.Items);
+            newOrder.Status = "Pending";
+            driveThru.enqueue(newOrder);
+        }
+        else if (choice == 2) {
+            driveThru.processOrder();
+        }
+        else if (choice == 3) {
+            driveThru.display();
+        }
+        else if (choice == 4) {
+            cout << "Thank you! Drive-Thru closing...\n";
+            break;
+        }
+        else {
+            cout << "Invalid choice. Please try again.\n";
+        }
+    }
+
+    return 0;
+}
+
