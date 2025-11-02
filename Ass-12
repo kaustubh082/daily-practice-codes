@@ -1,0 +1,78 @@
+#include <iostream>
+using namespace std;
+struct Edge {
+    int src, dest, weight;
+};
+struct Subset {
+    int parent;
+    int rank;
+};
+int find(Subset subsets[], int i) {
+    if (subsets[i].parent != i)
+        subsets[i].parent = find(subsets, subsets[i].parent);
+    return subsets[i].parent;
+}
+void Union(Subset subsets[], int x, int y) {
+    int xroot = find(subsets, x);
+    int yroot = find(subsets, y);
+    if (subsets[xroot].rank < subsets[yroot].rank)
+        subsets[xroot].parent = yroot;
+    else if (subsets[xroot].rank > subsets[yroot].rank)
+        subsets[yroot].parent = xroot;
+    else {
+        subsets[yroot].parent = xroot;
+        subsets[xroot].rank++;
+    }
+}
+void sortEdges(Edge edges[], int E) {
+    for (int i = 0; i < E - 1; i++) {
+        for (int j = 0; j < E - i - 1; j++) {
+            if (edges[j].weight > edges[j + 1].weight) {
+                Edge temp = edges[j];
+                edges[j] = edges[j + 1];
+                edges[j + 1] = temp;
+            }
+        }
+    }
+}
+void KruskalMST(Edge edges[], int V, int E) {
+    Edge result[100];
+    int e = 0;
+    int i = 0;
+    int totalCost = 0;
+    sortEdges(edges, E);
+    Subset* subsets = new Subset[V];
+    for (int v = 0; v < V; ++v) {
+        subsets[v].parent = v;
+        subsets[v].rank = 0;
+    }
+    while (e < V - 1 && i < E) {
+        Edge next_edge = edges[i++];
+        int x = find(subsets, next_edge.src);
+        int y = find(subsets, next_edge.dest);
+        if (x != y) {
+            result[e++] = next_edge;
+            totalCost += next_edge.weight;
+            Union(subsets, x, y);
+        }
+    }
+    cout << "Edges in the Minimum Cost Pipeline Network:" << endl;
+    for (int j = 0; j < e; ++j)
+        cout << result[j].src << " -- " << result[j].dest << "  |  Cost: " << result[j].weight << endl;
+    cout << "Minimum Total Cost of Laying Pipelines = " << totalCost << endl;
+    delete[] subsets;
+}
+int main() {
+    int V, E;
+    cout << "Enter number of houses (nodes): ";
+    cin >> V;
+    cout << "Enter number of possible connections (edges): ";
+    cin >> E;
+    Edge edges[100];
+    cout << "Enter each connection as: source destination cost" << endl;
+    for (int i = 0; i < E; ++i) {
+        cin >> edges[i].src >> edges[i].dest >> edges[i].weight;
+    }
+    KruskalMST(edges, V, E);
+    return 0;
+}
