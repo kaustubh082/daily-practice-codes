@@ -1,0 +1,85 @@
+#include <iostream>
+using namespace std;
+
+int main() {
+    int numStudents, numCourses;
+    cout << "Enter total number of students and courses: ";
+    cin >> numStudents >> numCourses;
+
+    int grades[numStudents][numCourses];
+    int sparseRep[30][3]; // Sparse matrix representation
+
+   
+    for (int studentIdx = 0; studentIdx < numStudents; studentIdx++) {
+        for (int courseIdx = 0; courseIdx < numCourses; courseIdx++) {
+            cout << "Enter marks for Student " << studentIdx + 1
+                 << " in Course " << courseIdx + 1 << " (0 if not taken): ";
+            cin >> grades[studentIdx][courseIdx];
+        }
+    }
+
+  
+    int entryCount = 1;
+    sparseRep[0][0] = numStudents;
+    sparseRep[0][1] = numCourses;
+
+    for (int s = 0; s < numStudents; s++) {
+        for (int c = 0; c < numCourses; c++) {
+            if (grades[s][c] != 0) {
+                sparseRep[entryCount][0] = s;
+                sparseRep[entryCount][1] = c;
+                sparseRep[entryCount][2] = grades[s][c];
+                entryCount++;
+            }
+        }
+    }
+    sparseRep[0][2] = entryCount - 1;
+
+   
+    cout << "\nSparse Representation:\n";
+    cout << "Student  Course  Marks\n";
+    for (int i = 0; i < entryCount; i++) {
+        cout << sparseRep[i][0] << "        "
+             << sparseRep[i][1] << "       "
+             << sparseRep[i][2] << endl;
+    }
+
+  
+    double totalMarksPerStudent[numStudents] = {0};
+    double coursesTaken[numStudents] = {0};
+
+    for (int i = 1; i < entryCount; i++) {
+        int student = sparseRep[i][0];
+        totalMarksPerStudent[student] += sparseRep[i][2];
+        coursesTaken[student]++;
+    }
+
+    cout << "\nAverage marks for each student:\n";
+    for (int i = 0; i < numStudents; i++) {
+        if (coursesTaken[i] != 0)
+            cout << "Student " << i + 1 << ": " 
+                 << totalMarksPerStudent[i] / coursesTaken[i] << endl;
+        else
+            cout << "Student " << i + 1 << ": No grades available\n";
+    }
+
+    double totalMarksPerCourse[numCourses] = {0};
+    double studentsPerCourse[numCourses] = {0};
+
+    for (int i = 1; i < entryCount; i++) {
+        int course = sparseRep[i][1];
+        totalMarksPerCourse[course] += sparseRep[i][2];
+        studentsPerCourse[course]++;
+    }
+
+    cout << "\nAverage marks for each course:\n";
+    for (int i = 0; i < numCourses; i++) {
+        if (studentsPerCourse[i] != 0)
+            cout << "Course " << i + 1 << ": " 
+                 << totalMarksPerCourse[i] / studentsPerCourse[i] << endl;
+        else
+            cout << "Course " << i + 1 << ": No grades available\n";
+    }
+
+    return 0;
+}
