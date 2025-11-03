@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-// Node structure for a patient
+
 struct Patient {
     string name;
     int age;
@@ -10,7 +10,7 @@ struct Patient {
     Patient* next;
 };
 
-// Function to create a new patient node
+
 Patient* CreatePatient(string name, int age, string condition) {
     Patient* newpatient = new Patient;
     newpatient->name = name;
@@ -20,7 +20,7 @@ Patient* CreatePatient(string name, int age, string condition) {
     return newpatient;
 }
 
-// Add patient at end
+
 Patient* AddPatient(Patient* head, string name, int age, string condition) {
     Patient* newpatient = CreatePatient(name, age, condition);
     if (head == nullptr)
@@ -33,7 +33,7 @@ Patient* AddPatient(Patient* head, string name, int age, string condition) {
     return head;
 }
 
-// Treat patient (remove from front)
+
 Patient* TreatPatient(Patient* head) {
     if (head == nullptr) {
         cout << "No patients in queue.\n";
@@ -46,7 +46,7 @@ Patient* TreatPatient(Patient* head) {
     return head;
 }
 
-// Prioritize patient (move up by one)
+
 Patient* PrioritizePatient(Patient* head, string name) {
     if (head == nullptr || head->next == nullptr) return head;
 
@@ -78,7 +78,7 @@ Patient* PrioritizePatient(Patient* head, string name) {
     return head;
 }
 
-// Search patient
+
 void SearchPatient(Patient* head, string name) {
     while (head != nullptr) {
         if (head->name == name) {
@@ -90,7 +90,7 @@ void SearchPatient(Patient* head, string name) {
     cout << "Patient not found.\n";
 }
 
-// Update condition
+
 void UpdatePatient(Patient* head, string name, string new_condition) {
     while (head != nullptr) {
         if (head->name == name) {
@@ -103,13 +103,13 @@ void UpdatePatient(Patient* head, string name, string new_condition) {
     cout << "Patient not found.\n";
 }
 
-// Display all patients
+
 void DisplayQueue(Patient* head) {
     if (head == nullptr) {
         cout << "No patients in the queue.\n";
         return;
     }
-    cout << "\nCurrent Queue:\n";
+    cout << "Current Queue: ";
     while (head != nullptr) {
         cout << "Name: " << head->name << ", Age: " << head->age << ", Condition: " << head->condition << endl;
         head = head->next;
