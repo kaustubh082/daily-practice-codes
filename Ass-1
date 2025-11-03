@@ -2,13 +2,13 @@
 #include <string>
 using namespace std;
 
-// Structure for storing contact details
+
 struct Contact {
     string name;
     string phone;
 };
 
-// Function to perform linear search
+
 int linearSearch(Contact contacts[], int size, string searchName) {
     for (int i = 0; i < size; i++) {
         if (contacts[i].name == searchName) {
@@ -18,7 +18,7 @@ int linearSearch(Contact contacts[], int size, string searchName) {
             return i; // return index where found
         }
     }
-    cout << "\nContact NOT found in phone book." << endl;
+    cout << "Contact NOT found in phone book." << endl;
     return -1;
 }
 
@@ -26,11 +26,11 @@ int main() {
     int size;
     cout << "Enter the number of contacts: ";
     cin >> size;
-    cin.ignore(); // clear newline left in input buffer
+    cin.ignore(); 
 
     Contact contacts[size];
 
-    // Input contacts
+
     for (int i = 0; i < size; i++) {
         cout << "\nEnter details for contact " << i + 1 << endl;
         cout << "Name: ";
@@ -39,7 +39,7 @@ int main() {
         getline(cin, contacts[i].phone);
     }
 
-    // Search
+   
     string searchName;
     cout << "\nEnter the name to search: ";
     getline(cin, searchName);
